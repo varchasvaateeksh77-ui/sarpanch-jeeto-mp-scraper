@@ -1,0 +1,20 @@
+{
+  "name": "sarpanch-jeeto-mp-scraper",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "Standalone ECI (gateway-voters.eci.gov.in) & MPSEC Voter Roll Scraper, Gemini Vision CAPTCHA/PDF Parser, 79-Rule Vanshavali Builder & Karpathy LLM Council Data Verifier for sarpanch-jeeto-mp-app",
+  "scripts": {
+    "scrape:verify": "tsx src/verifyAndPublish.ts",
+    "parse:pdf": "tsx src/parseOfficialPdf.ts",
+    "test": "tsx --test src/verifier.test.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.2"
+  }
+}

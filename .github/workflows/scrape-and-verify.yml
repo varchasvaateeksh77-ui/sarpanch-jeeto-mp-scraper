@@ -1,0 +1,47 @@
+name: Scrape ECI S12 Roll, Verify (12/12 Checks) & Push to App Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      gp_id:
+        description: 'Gram Panchayat ID (e.g. sehore/sehore/mahodiya)'
+        required: false
+        default: 'sehore/sehore/mahodiya'
+  schedule:
+    - cron: '0 3 1 * *'
+
+jobs:
+  scrape-verify-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scraper Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Checkout Target App Repo (sarpanch-jeeto-mp-app)
+        uses: actions/checkout@v4
+        with:
+          repository: varchasvaateeksh77-ui/sarpanch-jeeto-mp-app
+          token: ${{ secrets.APP_REPO_PUSH_TOKEN }}
+          path: target-app-repo
+
+      - name: Run Live ECI S12 Scraper & 12-Check Karpathy Council Gate
+        env:
+          TARGET_VERIFIED_DIR: ${{ github.workspace }}/target-app-repo/data/verified_panchayats
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: npm run scrape:verify
+
+      - name: Commit & Push Verified Data to sarpanch-jeeto-mp-app
+        working-directory: target-app-repo
+        run: |
+          git config user.name "sarpanch-jeeto-mp-scraper[bot]"
+          git config user.email "varchasvaateeksh77@gmail.com"
+          git add data/verified_panchayats/
+          git diff --staged --quiet || (git commit -m "chore(data): push 12/12 verified MP Panchayat rolls from sarpanch-jeeto-mp-scraper" && git push origin main)
